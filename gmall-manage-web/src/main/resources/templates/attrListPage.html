@@ -18,7 +18,7 @@
     <div id="tb" style="padding:5px;height:auto">
         <div style="margin-bottom:5px">
         <a  href="#" class="easyui-linkbutton" data-options="iconCls:'icon-add'" onclick="addAttrInfo()">增加</a>
-        <a  href="#" class="easyui-linkbutton" data-options="iconCls:'icon-edit'" >编辑</a>
+        <a  href="#" class="easyui-linkbutton" data-options="iconCls:'icon-edit'" onclick="editAttrInfo()">编辑</a>
         <a  href="#" class="easyui-linkbutton" data-options="iconCls:'icon-remove'">删除</a>
         </div>
         <div>
@@ -66,6 +66,20 @@
 </body>
 <script type="text/javascript">
 
+    //中部tabs的编辑方法
+   function editAttrInfo() {
+        if (!checkBeforeDialog()){
+            return;
+        }
+        $("#dlg").dialog('open');
+        initAttrValueDatagrid();
+        var attrInfoRow = $("#dg").datagrid('getSelected');
+        $("#dg_av").datagrid({url:'getAttrValueList?attrId=' + attrInfoRow.id });
+        $("#attrId").val(attrInfoRow.id);
+        $("#attrName").textbox('setValue',attrInfoRow.attrName);
+
+   }
+
     //添加页面的保存方法
     function saveAttr() {
         var attrJson = {};
@@ -86,6 +100,8 @@
 
     }
 
+
+    //初始化dialog
     function initAttrValueDatagrid() {
         $("#dg_av").datagrid('loadData',{total:0,rows:[]});
         datagrid = $("#dg_av").datagrid({
@@ -124,6 +140,7 @@
 
 
     }
+
 
     function checkBeforeDialog(){
         var ctg3val = $("#ctg3ForAttrList").combobox('getValue');

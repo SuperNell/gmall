@@ -2,10 +2,7 @@ package com.atguigu.gmall.manageweb.controller;
 
 
 import com.alibaba.dubbo.config.annotation.Reference;
-import com.atguigu.gmall.bean.BaseAttrInfo;
-import com.atguigu.gmall.bean.BaseCatalog1;
-import com.atguigu.gmall.bean.BaseCatalog2;
-import com.atguigu.gmall.bean.BaseCatalog3;
+import com.atguigu.gmall.bean.*;
 import com.atguigu.gmall.service.ManageService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -47,14 +44,23 @@ public class AttrManageController {
     @RequestMapping("attrInfoList")
     @ResponseBody
     public List<BaseAttrInfo> attrInfoList(@RequestParam String catalog3Id){
-        return manageService.getAttrInfo(catalog3Id);
+        return manageService.attrInfoList(catalog3Id);
     }
 
     @RequestMapping(value = "saveAttrInfo" ,method = RequestMethod.POST)
     @ResponseBody
     public void saveAttrInfo(BaseAttrInfo baseAttrInfo){
-        manageService.saveAttrInfo(baseAttrInfo);
+       manageService.saveAttrInfo(baseAttrInfo);
     }
+
+    @RequestMapping(value = "getAttrValueList")
+    @ResponseBody
+    public List<BaseAttrValue> getAttrValueList(String attrId){
+        BaseAttrInfo baseAttrInfo = manageService.getAttrInfo(attrId);
+        return  baseAttrInfo.getAttrValueList();
+    }
+
+
 
 
 

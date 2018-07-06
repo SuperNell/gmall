@@ -7,16 +7,19 @@ import java.util.List;
 public interface ManageService {
 
 
-    public List<BaseCatalog1> getCatalog1();
+    List<BaseCatalog1> getCatalog1();
 
-    public List<BaseCatalog2> getCatalog2(String catalog1);
+    List<BaseCatalog2> getCatalog2(String catalog1);
 
-    public List<BaseCatalog3> getCatalog3(String catalog2);
+    List<BaseCatalog3> getCatalog3(String catalog2);
 
-    public List<BaseAttrInfo> getAttrInfo(String catalog3);
+    List<BaseAttrInfo> attrInfoList(String catalog3);
 
-    public void saveAttrInfo(BaseAttrInfo baseAttrInfo);
+    void saveAttrInfo(BaseAttrInfo baseAttrInfo);
 
+    //获取属性值数据
+    BaseAttrInfo getAttrInfo(String attrId);
 
-
+    //或者spu商品列表
+    List<SpuInfo> getSpuInfoList(SpuInfo spuInfo);
 }

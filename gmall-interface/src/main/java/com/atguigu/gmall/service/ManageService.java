@@ -35,4 +35,12 @@ public interface ManageService {
     List<SpuSaleAttr> getSpuSaleAttrList(String spuId);
     // sku保存信息
     void saveSku(SkuInfo skuInfo);
+
+    //商品详情部分的获取skuInfo
+    SkuInfo getSkuInfo(String skuId);
+
+    List<SpuSaleAttr> selectSpuSaleAttrListCheckBySku(SkuInfo skuInfo);
+
+    List<SkuSaleAttrValue> getSkuSaleAttrValueListBySpu(String spuId);
+
 }

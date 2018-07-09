@@ -55,7 +55,7 @@
 <!----------------弹出框的按钮组----------------------->
 <div id="skuBtns">
     <a href="#" class="easyui-linkbutton" onclick="saveSku()">保 存</a>
-    <a href="#" class="easyui-linkbutton" onclick="closeSku()">关 闭</a>
+    <a href="#" class="easyui-linkbutton" onclick="javascript:$('#sku_dlg').dialog('close')">关 闭</a>
 </div>
 
 </body>
@@ -104,6 +104,7 @@
             skuInfo["skuAttrValueList[" + i + "].valueId"]=valueId;
 
         }
+
         /*销售属性*/
         var spuSaleAttrSelect = $("#spuSaleAttrGroup").children("select");
         console.log("len:"+ attrInfoSelect.length);
@@ -128,7 +129,7 @@
 
     function skuImgDgendEdit() {
         var rows = $("#skuImgDg").datagrid("getRows");
-        for(i=0;i<rows.length;i++){
+        for(var i=0;i<rows.length;i++){
             $("#skuImgDg").datagrid("endEdit",i);
         }
     }

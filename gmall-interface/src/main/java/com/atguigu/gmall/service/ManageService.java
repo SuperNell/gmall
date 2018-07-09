@@ -20,6 +20,19 @@ public interface ManageService {
     //获取属性值数据
     BaseAttrInfo getAttrInfo(String attrId);
 
-    //或者spu商品列表
+    //获取spu商品列表
     List<SpuInfo> getSpuInfoList(SpuInfo spuInfo);
+
+    //获取spu baseSaleAttr
+    List<BaseSaleAttr> getBaseSaleAttrList();
+
+    //保存和编辑spuInfo（商品信息）
+    void saveSpuInfo(SpuInfo spuInfo);
+
+    // 根据前台传递的spuId查询spuImage列表
+    List<SpuImage> getSpuImageList(String spuId);
+    // 根据前台传递的spuId查询销售属性列表
+    List<SpuSaleAttr> getSpuSaleAttrList(String spuId);
+    // sku保存信息
+    void saveSku(SkuInfo skuInfo);
 }

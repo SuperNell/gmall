@@ -23,6 +23,24 @@ public class ManageServiceImpl implements ManageService {
     private BaseAttrValueMapper baseAttrValueMapper;
     @Autowired
     private SpuInfoMapper spuInfoMapper;
+    @Autowired
+    private BaseSaleAttrMapper baseSaleAttrMapper;
+    @Autowired
+    private SpuImageMapper spuImageMapper;
+    @Autowired
+    private SpuSaleAttrMapper spuSaleAttrMapper;
+    @Autowired
+    private SpuSaleAttrValueMapper spuSaleAttrValueMapper;
+    @Autowired
+    private SkuInfoMapper skuInfoMapper;
+    @Autowired
+    private SkuImageMapper skuImageMapper;
+    @Autowired
+    private  SkuSaleAttrValueMapper skuSaleAttrValueMapper;
+    @Autowired
+    private  SkuAttrValueMapper skuAttrValueMapper;
+
+
 
     @Override
     public List<BaseCatalog1> getCatalog1() {
@@ -45,9 +63,10 @@ public class ManageServiceImpl implements ManageService {
 
     @Override
     public List<BaseAttrInfo> attrInfoList(String catalog3) {
-        BaseAttrInfo baseAttrInfo = new BaseAttrInfo();
+       /* BaseAttrInfo baseAttrInfo = new BaseAttrInfo();
         baseAttrInfo.setCatalog3Id(catalog3);
-        return baseAttrInfoMapper.select(baseAttrInfo);
+        return baseAttrInfoMapper.select(baseAttrInfo);*/
+       return baseAttrInfoMapper.getBaseAttrInfoListByCatalog3Id(Long.parseLong(catalog3));
     }
 
     @Override
@@ -55,12 +74,12 @@ public class ManageServiceImpl implements ManageService {
         // 说明value_name的值没有拿到！
         // 保存数据：编辑数据放到一起来处理。
         // 是否有主键,操作都是指的是平台属性操作
-        if (baseAttrInfo.getId()!=null && baseAttrInfo.getId().length()>0){
+        if (baseAttrInfo.getId() != null && baseAttrInfo.getId().length() > 0) {
             // 有主键 ，则修改
             baseAttrInfoMapper.updateByPrimaryKey(baseAttrInfo);
-        }else {
+        } else {
             // 没有主键则需要添加,注意一下，当没有主键的时候，数据的id要设置成null，如果不设置有可能会出现空字符串
-            if(baseAttrInfo.getId().length()==0){
+            if (baseAttrInfo.getId().length() == 0) {
                 baseAttrInfo.setId(null);
             }
             // 开始插入数据
@@ -73,11 +92,11 @@ public class ManageServiceImpl implements ManageService {
         baseAttrValueMapper.delete(baseAttrValue);
 
         // 开始操作属性值列表
-        if (baseAttrInfo.getAttrValueList()!=null&&baseAttrInfo.getAttrValueList().size()>0){
+        if (baseAttrInfo.getAttrValueList() != null && baseAttrInfo.getAttrValueList().size() > 0) {
             // 循环数据 itar : a-->array iter : each
             for (BaseAttrValue attrValue : baseAttrInfo.getAttrValueList()) {
                 // 做插入操作
-                if (attrValue.getId().length()==0){
+                if (attrValue.getId().length() == 0) {
                     attrValue.setId(null);
                 }
                 attrValue.setAttrId(baseAttrInfo.getId());
@@ -133,4 +152,131 @@ public class ManageServiceImpl implements ManageService {
         List<SpuInfo> spuInfoList = spuInfoMapper.select(spuInfo);
         return spuInfoList;
     }
+
+    @Override
+    public List<BaseSaleAttr> getBaseSaleAttrList() {
+        return baseSaleAttrMapper.selectAll();
+    }
+
+    @Override
+    public void saveSpuInfo(SpuInfo spuInfo) {
+        if (spuInfo.getId() != null && spuInfo.getId().length() > 0) {
+            spuInfoMapper.updateByPrimaryKey(spuInfo);
+        } else {
+            if (spuInfo.getId()!=null && spuInfo.getId().length() == 0) {
+                spuInfo.setId(null);
+            }
+            spuInfoMapper.insertSelective(spuInfo);
+        }
+
+        SpuImage spuImage = new SpuImage();
+        spuImage.setSpuId(spuInfo.getId());
+        spuImageMapper.delete(spuImage);
+
+        List<SpuImage> spuImageList = spuInfo.getSpuImageList();
+        for (SpuImage image : spuImageList) {
+            if (image.getId() != null && image.getId().length() == 0) {
+                image.setId(null);
+            }
+            image.setSpuId(spuInfo.getId());
+            spuImageMapper.insertSelective(image);
+        }
+
+        SpuSaleAttr spuSaleAttr = new SpuSaleAttr();
+        spuSaleAttr.setSaleAttrId(spuInfo.getId());
+        spuSaleAttrMapper.delete(spuSaleAttr);
+
+        SpuSaleAttrValue spuSaleAttrValue = new SpuSaleAttrValue();
+        spuSaleAttrValue.setSaleAttrId(spuInfo.getId());
+        spuSaleAttrValueMapper.delete(spuSaleAttrValue);
+
+        List<SpuSaleAttr> spuSaleAttrList = spuInfo.getSpuSaleAttrList();
+        for (SpuSaleAttr saleAttr : spuSaleAttrList) {
+            if (saleAttr.getId() != null && saleAttr.getId().length() == 0){
+                saleAttr.setId(null);
+            }
+            saleAttr.setSpuId(spuInfo.getId());
+            spuSaleAttrMapper.insertSelective(saleAttr);
+
+            List<SpuSaleAttrValue> spuSaleAttrValueList = saleAttr.getSpuSaleAttrValueList();
+            for (SpuSaleAttrValue saleAttrValue : spuSaleAttrValueList) {
+                if (saleAttrValue.getId() != null && saleAttrValue.getId().length() == 0){
+                    saleAttrValue.setId(null);
+                }
+                saleAttrValue.setSpuId(spuInfo.getId());
+                spuSaleAttrValueMapper.insertSelective(saleAttrValue);
+            }
+        }
+    }
+
+    @Override
+    public List<SpuImage> getSpuImageList(String spuId) {
+        // 创建一个spuImage对象
+        SpuImage spuImage = new SpuImage();
+        spuImage.setSpuId(spuId);
+        return spuImageMapper.select(spuImage);
+    }
+
+    @Override
+    public List<SpuSaleAttr> getSpuSaleAttrList(String spuId) {
+        // 销售属性，对应销售属性值，也是多表关联。
+        List<SpuSaleAttr> spuSaleAttrList =  spuSaleAttrMapper.selectSpuSaleAttrList(Long.parseLong(spuId));
+        return spuSaleAttrList;
+    }
+
+    @Override
+    public void saveSku(SkuInfo skuInfo) {
+        //添加SkuInfo数据
+        if (skuInfo.getId()==null || skuInfo.getId().length()==0){
+            skuInfo.setId(null);
+            skuInfoMapper.insertSelective(skuInfo);
+        } else {
+            skuInfoMapper.updateByPrimaryKey(skuInfo);
+        }
+
+        // 先删除，再添加
+        SkuAttrValue skuAttrValue = new SkuAttrValue();
+        // SkuId = SkuInfo.id
+        skuAttrValue.setSkuId(skuInfo.getId());
+        skuAttrValueMapper.delete(skuAttrValue);
+
+        List<SkuAttrValue> skuAttrValueList = skuInfo.getSkuAttrValueList();
+        for (SkuAttrValue attrValue : skuAttrValueList) {
+            // 坑！
+            attrValue.setSkuId(skuInfo.getId());
+            if (attrValue.getId()!=null&& attrValue.getId().length()==0){
+                attrValue.setId(null);
+            }
+            skuAttrValueMapper.insertSelective(attrValue);
+        }
+        // 属性值添加
+        SkuSaleAttrValue skuSaleAttrValue = new SkuSaleAttrValue();
+        skuSaleAttrValue.setSkuId(skuInfo.getId());
+        skuSaleAttrValueMapper.delete(skuSaleAttrValue);
+
+        List<SkuSaleAttrValue> skuSaleAttrValueList = skuInfo.getSkuSaleAttrValueList();
+        for (SkuSaleAttrValue saleAttrValue : skuSaleAttrValueList) {
+            saleAttrValue.setSkuId(skuInfo.getId());
+            if (saleAttrValue.getId()!=null && saleAttrValue.getId().length()==0){
+                saleAttrValue.setSkuId(null);
+            }
+            skuSaleAttrValueMapper.insertSelective(saleAttrValue);
+        }
+        // 图片添加
+        SkuImage skuImage = new SkuImage();
+        skuImage.setSkuId(skuInfo.getId());
+        skuImageMapper.delete(skuImage);
+
+        List<SkuImage> skuImageList = skuInfo.getSkuImageList();
+        for (SkuImage image : skuImageList) {
+            image.setSkuId(skuInfo.getId());
+            if (image.getId()!=null && image.getId().length()==0){
+                image.setId(null);
+            }
+            skuImageMapper.insertSelective(image);
+        }
+
+    }
+
+
 }

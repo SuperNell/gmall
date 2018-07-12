@@ -96,7 +96,15 @@
 
 			</div>
 		</div>
-<div class="Shop">
+
+
+		<!--存放隐藏数据：id:名称不能换成其他的-->
+		<input id="valuesSku" type="hidden"  th:value= " ${valuesSkuJson}"  />
+		<!--存储是当前商品id-->
+		<input id="skuId" type="hidden"  th:value= " ${skuInfo.id}"  />
+
+
+		<div class="Shop">
 		<div class="box">
 			<div class="box-one ">
 				<div class="boxx">
@@ -115,14 +123,10 @@
 
 						<div class="box-lh-one">
 							<ul >
- 
+
  								<li th:each="skuImage:${skuInfo.skuImageList}">
 									<img th:src="${skuImage.imgUrl}" />
 								</li>
-								<!--<li><img src="/img/59ded626Ne3c69b70.jpg" /></li>-->
-								<!--<li><img src="/img/59ded626N7c4cb0a3.jpg" /></li>-->
-								<!--<li><img src="/img/59ded626Ne3c69b70.jpg" /></li>-->
-								<!--<li><img src="/img/59ded62dN7e28abc5%20(1).jpg" /></li>-->
 
 							</ul>
 						</div>
@@ -224,7 +228,7 @@
 								<dl>
 									<dt th:text="${spuSaleList.saleAttrName}">选择颜色</dt>
 									<dd  th:class="${spuSaleAttrValue.isChecked } == 1 ? 'redborder' : ''" th:each="spuSaleAttrValue:${spuSaleList.spuSaleAttrValueList}">
-										<div th:text="${spuSaleAttrValue.saleAttrValueName}" >
+										<div th:value="${spuSaleAttrValue.id}" th:text="${spuSaleAttrValue.saleAttrValueName}" >
 											  摩卡金
 										</div>
 									</dd>

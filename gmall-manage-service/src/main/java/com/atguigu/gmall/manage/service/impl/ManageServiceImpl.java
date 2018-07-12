@@ -1,10 +1,14 @@
 package com.atguigu.gmall.manage.service.impl;
 
 import com.alibaba.dubbo.config.annotation.Service;
+import com.alibaba.fastjson.JSON;
 import com.atguigu.gmall.bean.*;
+import com.atguigu.gmall.config.RedisUtil;
+import com.atguigu.gmall.manage.constant.ManageConstant;
 import com.atguigu.gmall.manage.mapper.*;
 import com.atguigu.gmall.service.ManageService;
 import org.springframework.beans.factory.annotation.Autowired;
+import redis.clients.jedis.Jedis;
 
 import java.util.List;
 
@@ -36,9 +40,11 @@ public class ManageServiceImpl implements ManageService {
     @Autowired
     private SkuImageMapper skuImageMapper;
     @Autowired
-    private  SkuSaleAttrValueMapper skuSaleAttrValueMapper;
+    private SkuSaleAttrValueMapper skuSaleAttrValueMapper;
     @Autowired
-    private  SkuAttrValueMapper skuAttrValueMapper;
+    private SkuAttrValueMapper skuAttrValueMapper;
+    @Autowired
+    private RedisUtil redisUtil;
 
 
 
@@ -280,17 +286,46 @@ public class ManageServiceImpl implements ManageService {
 
     @Override
     public SkuInfo getSkuInfo(String skuId) {
+        Jedis jedis = redisUtil.getJedis();
+        SkuInfo skuInfo = null;
+        String skuInfoKey = ManageConstant.SKUKEY_PREFIX + skuId + ManageConstant.SKUKEY_SUFFIX;
+        if (jedis.exists(skuInfoKey)){
+            String skuInfoJson = jedis.get(skuInfoKey);
+            if (skuInfoJson != null || !"".equals(skuInfoJson)){
+                skuInfo = JSON.parseObject(skuInfoJson,SkuInfo.class);
+                return skuInfo;
+            }
+        }else {
+            skuInfo = getSkuInfoDB(skuId);
+            jedis.setex(skuInfoKey,ManageConstant.SKUKEY_TIMEOUT,JSON.toJSONString(skuInfo));
+            return skuInfo;
+        }
+        return skuInfo;
+    }
+
+    private SkuInfo getSkuInfoDB(String skuId) {
         SkuInfo skuInfo = skuInfoMapper.selectByPrimaryKey(skuId);
         SkuImage skuImage = new SkuImage();
         skuImage.setSkuId(skuId);
         List<SkuImage> skuImageList = skuImageMapper.select(skuImage);
         skuInfo.setSkuImageList(skuImageList);
+        //添加sku属性（es）
+        SkuAttrValue skuAttrValue = new SkuAttrValue();
+        skuAttrValue.setSkuId(skuId);
+        List<SkuAttrValue> skuAttrValues = skuAttrValueMapper.select(skuAttrValue);
+        skuInfo.setSkuAttrValueList(skuAttrValues);
+        //添加sku属性值（es）
+        SkuSaleAttrValue skuSaleAttrValue = new SkuSaleAttrValue();
+        skuAttrValue.setSkuId(skuId);
+        List<SkuSaleAttrValue> skuSaleAttrValues = skuSaleAttrValueMapper.select(skuSaleAttrValue);
+        skuInfo.setSkuSaleAttrValueList(skuSaleAttrValues);
         return skuInfo;
     }
 
     @Override
     public List<SpuSaleAttr> selectSpuSaleAttrListCheckBySku(SkuInfo skuInfo) {
-        List<SpuSaleAttr> spuSaleAttrList = spuSaleAttrMapper.selectSpuSaleAttrListCheckBySku(Long.parseLong(skuInfo.getId()), Long.parseLong(skuInfo.getSpuId()));
+        List<SpuSaleAttr> spuSaleAttrList = spuSaleAttrMapper.
+                selectSpuSaleAttrListCheckBySku(Long.parseLong(skuInfo.getId()), Long.parseLong(skuInfo.getSpuId()));
         return spuSaleAttrList;
     }
 

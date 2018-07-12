@@ -3,13 +3,16 @@ package com.atguigu.gmall.manageweb.controller;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.atguigu.gmall.bean.*;
+import com.atguigu.gmall.service.ListService;
 import com.atguigu.gmall.service.ManageService;
+import org.apache.commons.beanutils.BeanUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 @Controller
@@ -17,6 +20,9 @@ public class AttrManageController {
 
     @Reference
     private ManageService manageService;
+
+    @Reference
+    private ListService listService;
 
     @RequestMapping("/attrListPage")
     public String attrListPage(){
@@ -60,7 +66,20 @@ public class AttrManageController {
         return  baseAttrInfo.getAttrValueList();
     }
 
-
+    @RequestMapping(value = "onSale",method = RequestMethod.GET)
+    @ResponseBody
+    public void onSale(String skuId){
+        SkuInfo skuInfo = manageService.getSkuInfo(skuId);
+        SkuLsInfo skuLsInfo = new SkuLsInfo();
+        try {
+            BeanUtils.copyProperties(skuLsInfo,skuInfo);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        }
+        listService.saveSkuLsInfo(skuLsInfo);
+    }
 
 
 

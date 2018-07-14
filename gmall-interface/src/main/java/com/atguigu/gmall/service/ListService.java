@@ -11,4 +11,7 @@ public interface ListService {
 
     //查询es结果返回
     SkuLsResult search(SkuLsParams skuLsParams);
+
+    //准备更新redis，更新redis达到一定次数，更新es
+    void incrHotScore(String skuId);
 }

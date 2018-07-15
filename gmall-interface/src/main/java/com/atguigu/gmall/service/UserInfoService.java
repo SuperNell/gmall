@@ -23,6 +23,9 @@ public interface UserInfoService {
     // 删除
     void  del(UserInfo userInfo);
 
+    //sso登录方法
+    UserInfo login(UserInfo userInfo);
 
-
+    //sso验证
+    UserInfo verify(String userId);
 }

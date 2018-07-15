@@ -32,6 +32,7 @@ public class ListController {
 
     @RequestMapping(value = "list.html", method = RequestMethod.GET)
     public String list(SkuLsParams skuLsParams, Model model) {
+        skuLsParams.setPageSize(2);
         SkuLsResult search = listService.search(skuLsParams);
         System.out.println(JSON.toJSONString(search));
         model.addAttribute("skuLsInfoList", search.getSkuLsInfoList());
